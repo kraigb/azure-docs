@@ -5,7 +5,7 @@ author: ggailey777
 manager: gwallace
 ms.service: azure-functions
 ms.topic: conceptual
-ms.date: 09/08/2018
+ms.date: 12/17/2019
 ms.author: glenga
 ---
 
@@ -56,34 +56,37 @@ The following sample *host.json* files have all possible options specified.
     "logging": {
         "fileLoggingMode": "debugOnly",
         "logLevel": {
-          "Function.MyFunction": "Information",
-          "default": "None"
+            "Function.MyFunction": "Information",
+            "default": "None"
         },
         "applicationInsights": {
+            "enableLiveMetrics": true,
+            "enableDependencyTracing": true,
+            "enablePerformanceCountersCollection": true,
+            "samplingExcludedTypes": "Dependency;Event",
+            "samplingIncludedTypes": "Exception;PageView;Request;Trace",        
             "samplingSettings": {
-              "isEnabled": true,
-              "maxTelemetryItemsPerSecond": 20,
-              "EvaluationInterval": "00:00:15",
-              "InitialSamplingPercentage": 0,
-              "MaxSamplingPercentage": 100,
-              "MinSamplingPercentage": 0.1,
-              "MovingAverageRatio":0.25,
-              "SamplingPercentageDecreaseTimeout": "00:02:00",
-              "SamplingPercentageIncreaseTimeout": "00:15:00"
+                "isEnabled": true,
+                "maxTelemetryItemsPerSecond": 20,
+                "evaluationInterval": "00:10:00",
+                "initialSamplingPercentage": 1.0,
+                "maxSamplingPercentage": 1.0,
+                "minSamplingPercentage": 0.1,
+                "movingAverageRatio": 1.0,
+                "samplingPercentageDecreaseTimeout": "00:02:00",
+                "samplingPercentageIncreaseTimeout": "00:15:00"
             }
-            "SamplingExcludedTypes": "",
-            "SamplingIncludedTypes": "Dependency, Event, Exception, PageView, Request, Trace"
         }
     },
     "managedDependency": {
         "enabled": true
     },
     "singleton": {
-      "lockPeriod": "00:00:15",
-      "listenerLockPeriod": "00:01:00",
-      "listenerLockRecoveryPollingInterval": "00:01:00",
-      "lockAcquisitionTimeout": "00:01:00",
-      "lockAcquisitionPollingInterval": "00:00:03"
+        "lockPeriod": "00:00:15",
+        "listenerLockPeriod": "00:01:00",
+        "listenerLockRecoveryPollingInterval": "00:01:00",
+        "lockAcquisitionTimeout": "00:01:00",
+        "lockAcquisitionPollingInterval": "00:00:03"
     },
     "watchDirectories": [ "Shared", "Test" ]
 }
@@ -104,45 +107,45 @@ Controls the [sampling feature in Application Insights](./functions-monitoring.m
 ```json
 {
     "applicationInsights": {
+        "enableLiveMetrics": true,
+        "enableDependencyTracing": true,
+        "enablePerformanceCountersCollection": true,
+        "samplingExcludedTypes": "Dependency;Event",
+        "samplingIncludedTypes": "Exception;PageView;Request;Trace",
         "samplingSettings": {
-          "isEnabled": true,
-          "maxTelemetryItemsPerSecond" : 20
-          "EvaluationInterval": "00:00:15",
-          "InitialSamplingPercentage": 0,
-          "MaxSamplingPercentage": 100,
-          "MinSamplingPercentage": 0.1,
-          "MovingAverageRatio":0.25,
-          "SamplingPercentageDecreaseTimeout": "00:02:00",
-          "SamplingPercentageIncreaseTimeout": "00:15:00"
+            "isEnabled": true,
+            "maxTelemetryItemsPerSecond" : 20
+            "evaluationInterval": "00:10:00",
+            "initialSamplingPercentage": 1.0,
+            "maxSamplingPercentage": 1.0,
+            "minSamplingPercentage": 0.1,
+            "movingAverageRatio": 1.0,
+            "samplingPercentageDecreaseTimeout": "00:02:00",
+            "samplingPercentageIncreaseTimeout": "00:15:00"
         }
-    "SamplingExcludedTypes": "",
-    "SamplingIncludedTypes": "Dependency, Event, Exception, PageView, Request, Trace",
-    "EnableLiveMetrics": true,
-    "EnableDependencyTracing":true,
-    "EnablePerformanceCountersCollection":true
     }
 }
 ```
 
 > [!NOTE]
-> Log sampling may cause some executions to not show up in the Application Insights monitor blade.
+> Log sampling may cause some executions to not show up in the Application Insights monitor blade. To avoid log sampling, add `"Request"` to the value for `"samplingExcludedTypes"` to the `applicationInsights` value.
 
-|Property  |Default | Description |
-|---------|---------|---------| 
-|isEnabled|true|Enables or disables sampling.| 
-|maxTelemetryItemsPerSecond|20|The target rate that the adaptive algorithm aims for.| 
-|EvaluationInterval |00:00:15|The interval at which the current rate of telemetry is re-evaluated. Evaluation is performed as a moving average.|
-|InitialSamplingPercentage |100|The value assigned when the app has just started. Don't reduce this while you're debugging.|
-|MaxSamplingPercentage |100|As sampling percentage varies, what is the maximum value we're allowed to set.|
-|MinSamplingPercentage |0.1|As sampling percentage varies, what is the minimum value we're allowed to set.|
-|MovingAverageRatio |0.25|In the calculation of the moving average, the weight assigned to the most recent value. Use a value equal to or less than 1. Smaller values make the algorithm less reactive to sudden changes.|
-|SamplingPercentageDecreaseTimeout |00:02:00|When sampling percentage value changes, how soon after are we allowed to lower sampling percentage again to capture less data.|
-|SamplingPercentageIncreaseTimeout |00:15:00|When sampling percentage value changes, how soon after are we allowed to increase sampling percentage again to capture more data.|
-|SamplingExcludedTypes |""|Types excluded from Sampling.|
-|SamplingIncludedTypes |""|Types included in Sampling.|
-|EnableLiveMetrics |true|Enables live metrics collection.|
-|EnableDependencyTracking|true|Enables dependency tracking.|
-|EnablePerformanceCountersCollection|true|Enables Kudu performance counters collection.|
+| Property | Default | Description |
+| --------- | --------- | --------- | 
+| enableLiveMetrics | true | Enables live metrics collection. |
+| enableDependencyTracking | true | Enables dependency tracking. |
+| enablePerformanceCountersCollection | true | Enables Kudu performance counters collection. |
+| samplingExcludedTypes | "Dependency;Event" | A semi-colon delimited list of types that you don't want to be sampled. Recognized types are: Dependency, Event, Exception, PageView, Request, Trace. All instances of the specified types are transmitted; the types that are not specified are sampled. |
+| samplingIncludedTypes | "PageView;Trace" | A semi-colon delimited list of types that you want to be sampled; an empty list implies all types. Type listed in `samplingExcludedTypes` override types listed here. Recognized types are: Dependency, Event, Exception, PageView, Request, Trace. All instances of the specified types are transmitted; the types that are not specified are sampled. |
+| samplingSettings.isEnabled | true | Enables or disables sampling. | 
+| samplingSettings.maxTelemetryItemsPerSecond | 20 | The target number of telemetry items logged per second on each server host. If your app runs on many hosts, reduce this value to remain within your overall target rate of traffic. | 
+| samplingSettings.evaluationInterval | 01:00:00 | The interval at which the current rate of telemetry is reevaluated. Evaluation is performed as a moving average. You might want to shorten this interval if your telemetry is liable to sudden bursts. |
+| samplingSettings.initialSamplingPercentage| 1.0 | The initial sampling percentage applied at the start of the sampling process to dynamically vary the percentage. Don't reduce value while you're debugging. |
+| samplingSettings.minSamplingPercentage | 0.1 | As sampling percentage varies, this property determines the minimum allowed sampling percentage. |
+| samplingSettings.maxSamplingPercentage | 1.0 | As sampling percentage varies, this property determines the maximum allowed sampling percentage. |
+| samplingSettings.movingAverageRatio | 1.0 | In the calculation of the moving average, the weight assigned to the most recent value. Use a value equal to or less than 1. Smaller values make the algorithm less reactive to sudden changes. |
+| samplingSettings.samplingPercentageIncreaseTimeout | 00:00:01 | When the sampling percentage value changes, this property determines how soon afterwards Application Insights is allowed to raise sampling percentage again to capture more data. |
+| samplingSettings.samplingPercentageDecreaseTimeout | 00:00:01 | When the sampling percentage value changes, this property determines how soon afterwards Application Insights is allowed to lower sampling percentage again to capture less data. |
 
 ## cosmosDb
 
